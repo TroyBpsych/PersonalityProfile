@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Catalyst Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #c17b3f;
+    --accent2: #4a6fa5;
+    --soft: #e8e0d0;
+    --muted: #8a8070;
+    --white: #fefcf8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* INTRO SCREEN */
+  #intro {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* FIX: pointer-events:none so pseudo-elements never block taps */
+  #intro::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    border: 1px solid rgba(193,123,63,0.2);
+    top: -200px; right: -200px;
+    pointer-events: none;
+  }
+  #intro::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    border: 1px solid rgba(74,111,165,0.2);
+    bottom: -150px; left: -100px;
+    pointer-events: none;
+  }
+
+  .intro-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .intro-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .intro-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 72px);
+    line-height: 1.1;
+    margin-bottom: 24px;
+    max-width: 700px;
+  }
+
+  .intro-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .intro-desc {
+    font-size: 16px;
+    color: rgba(245,240,232,0.7);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  .intro-badges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: rgba(245,240,232,0.8);
+  }
+
+  .start-btn {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 20px 52px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.2s;
+    position: relative;
+    z-index: 2;
+    /* FIX: ensure tap target is large enough on mobile */
+    min-height: 56px;
+    touch-action: manipulation;
+  }
+
+  .start-btn:hover, .start-btn:active {
+    background: #d4894a;
+    transform: translateY(-2px);
+  }
+
+  /* QUIZ SCREEN */
+  #quiz {
+    display: none;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  .quiz-header {
+    background: var(--ink);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+  }
+
+  .quiz-logo {
+    font-family: 'Playfair Display', serif;
+    color: var(--paper);
+    font-size: 16px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: rgba(245,240,232,0.5);
+    margin-top: 5px;
+    text-align: right;
+  }
+
+  .section-header {
+    background: var(--soft);
+    padding: 32px 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 5vw, 28px);
+    color: var(--ink);
+  }
+
+  .questions-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  .question-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 24px 20px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .question-num {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .question-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+
+  /* FIX: Larger touch targets for mobile Likert buttons */
+  .likert-scale {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .likert-btn {
+    flex: 1;
+    min-height: 48px;
+    border: 2px solid var(--soft);
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    touch-action: manipulation;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .likert-btn:active {
+    transform: scale(0.95);
+  }
+
+  .likert-btn.selected {
+    color: white;
+    border-color: transparent;
+  }
+
+  .likert-btn[data-val="1"].selected { background: #c0392b; }
+  .likert-btn[data-val="2"].selected { background: #e67e22; }
+  .likert-btn[data-val="3"].selected { background: var(--muted); }
+  .likert-btn[data-val="4"].selected { background: #2ecc71; }
+  .likert-btn[data-val="5"].selected { background: #1a7a4a; }
+
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+    padding: 0 2px;
+  }
+
+  /* FIX: Nav buttons — error msg on its own row, no layout breakage */
+  .nav-area {
+    max-width: 760px;
+    margin: 24px auto 0;
+    padding: 0 16px;
+  }
+
+  .nav-btns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .error-msg {
+    color: #c0392b;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+    background: rgba(192,57,43,0.06);
+    border-radius: 6px;
+    padding: 10px;
+  }
+
+  .nav-btn {
+    padding: 14px 28px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    min-height: 50px;
+    touch-action: manipulation;
+  }
+
+  .nav-btn.prev {
+    background: transparent;
+    border: 2px solid var(--soft);
+    color: var(--muted);
+  }
+
+  .nav-btn.prev:hover, .nav-btn.prev:active { border-color: var(--ink); color: var(--ink); }
+
+  .nav-btn.next {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .nav-btn.next:hover, .nav-btn.next:active { background: #2d2d4a; }
+
+  .nav-btn.finish {
+    background: var(--accent);
+    color: white;
+  }
+
+  .nav-btn.finish:hover, .nav-btn.finish:active { background: #d4894a; }
+
+  /* RESULTS */
+  #results {
+    display: none;
+    min-height: 100vh;
+  }
+
+  .results-hero {
+    background: var(--ink);
+    padding: 64px 24px 56px;
+    text-align: center;
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .results-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(193,123,63,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(74,111,165,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .results-hero-inner { position: relative; z-index: 1; }
+
+  .results-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .mbti-type-display {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(56px, 15vw, 120px);
+    letter-spacing: 8px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .mbti-name {
+    font-size: 18px;
+    color: rgba(245,240,232,0.7);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 32px;
+  }
+
+  .results-body {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 16px 60px;
+  }
+
+  .results-section {
+    margin-bottom: 52px;
+  }
+
+  .results-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--soft);
+    color: var(--ink);
+  }
+
+  /* MBTI Dimension Bars */
+  .dimension-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .dim-label {
+    width: 80px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: right;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .dim-bar-bg {
+    flex: 1;
+    height: 14px;
+    background: var(--soft);
+    border-radius: 7px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .dim-bar-fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-radius: 7px;
+    transition: width 1s ease;
+  }
+
+  .dim-bar-fill.left { right: 50%; background: var(--accent2); }
+  .dim-bar-fill.right { left: 50%; background: var(--accent); }
+
+  .dim-pct {
+    width: 52px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .dim-label-right {
+    width: 80px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  /* Working Types Cards */
+  .wg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .wg-card {
+    padding: 22px 20px;
+    border-radius: 10px;
+    border: 1px solid;
+  }
+
+  .wg-card.genius { background: rgba(26,122,74,0.06); border-color: rgba(26,122,74,0.25); }
+  .wg-card.competency { background: rgba(74,111,165,0.06); border-color: rgba(74,111,165,0.25); }
+  .wg-card.frustration { background: rgba(192,57,43,0.06); border-color: rgba(192,57,43,0.2); }
+
+  .wg-tag {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .wg-tag.genius { color: #1a7a4a; }
+  .wg-tag.competency { color: var(--accent2); }
+  .wg-tag.frustration { color: #c0392b; }
+
+  .wg-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .wg-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Narrative */
+  .narrative-box {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 10px;
+    padding: 40px 32px;
+    line-height: 1.9;
+    font-size: 15px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .narrative-box::before {
+    content: '\201C';
+    font-family: 'Playfair Display', serif;
+    font-size: 180px;
+    color: rgba(193,123,63,0.08);
+    position: absolute;
+    top: -40px;
+    left: 16px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .narrative-box p { margin-bottom: 16px; position: relative; z-index: 1; }
+  .narrative-box p:last-child { margin-bottom: 0; }
+
+  /* Result action buttons */
+  .result-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .retake-btn {
+    padding: 16px 36px;
+    background: transparent;
+    border: 2px solid var(--ink);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    touch-action: manipulation;
+    min-height: 52px;
+  }
+
+  .retake-btn:hover, .retake-btn:active { background: var(--ink); color: var(--paper); }
+
+  .save-pdf-btn {
+    padding: 16px 36px;
+    background: var(--accent);
+    border: 2px solid var(--accent);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    touch-action: manipulation;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .save-pdf-btn:hover, .save-pdf-btn:active { background: #d4894a; border-color: #d4894a; }
+
+  .save-pdf-btn svg { flex-shrink: 0; }
+
+  @media (max-width: 480px) {
+    .dim-label, .dim-label-right { width: 60px; font-size: 10px; }
+    .dim-pct { width: 44px; font-size: 10px; }
+    .narrative-box { padding: 28px 20px; }
+    .quiz-logo { display: none; }
+    .result-actions { flex-direction: column; align-items: center; }
+    .retake-btn, .save-pdf-btn { width: 100%; max-width: 320px; justify-content: center; }
+  }
+
+  /* ─── PRINT / PDF STYLES ─── */
+  @media print {
+    /* Hide everything except results */
+    #intro, #quiz, .result-actions { display: none !important; }
+    #results { display: block !important; }
+
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body { background: white; font-size: 12pt; }
+
+    /* Hero banner */
+    .results-hero {
+      background: #1a1a2e !important;
+      color: #f5f0e8 !important;
+      padding: 40px 32px !important;
+      margin-bottom: 0;
+      page-break-after: avoid;
+    }
+
+    .results-hero::before { display: none; }
+
+    .mbti-type-display {
+      font-size: 72pt !important;
+      letter-spacing: 6px !important;
+    }
+
+    .mbti-name { font-size: 16pt !important; }
+    .results-label { font-size: 9pt !important; }
+
+    /* Body layout */
+    .results-body {
+      padding: 24pt 32pt !important;
+      max-width: 100% !important;
+    }
+
+    .results-section { margin-bottom: 28pt !important; page-break-inside: avoid; }
+
+    .results-section-title {
+      font-size: 16pt !important;
+      margin-bottom: 12pt !important;
+      padding-bottom: 6pt !important;
+      border-bottom: 1.5pt solid #e8e0d0 !important;
+      page-break-after: avoid;
+    }
+
+    /* Dimension bars */
+    .dimension-row { margin-bottom: 10pt !important; }
+    .dim-label, .dim-label-right { font-size: 9pt !important; }
+    .dim-pct { font-size: 9pt !important; }
+    .dim-bar-bg { height: 10pt !important; }
+    .dim-bar-fill.left { background: #4a6fa5 !important; }
+    .dim-bar-fill.right { background: #c17b3f !important; }
+
+    /* WG cards — 3 columns in print */
+    .wg-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 10pt !important;
+    }
+
+    .wg-card {
+      padding: 12pt !important;
+      page-break-inside: avoid;
+    }
+
+    .wg-card.genius { background: rgba(26,122,74,0.08) !important; border: 1pt solid rgba(26,122,74,0.3) !important; }
+    .wg-card.competency { background: rgba(74,111,165,0.08) !important; border: 1pt solid rgba(74,111,165,0.3) !important; }
+    .wg-card.frustration { background: rgba(192,57,43,0.08) !important; border: 1pt solid rgba(192,57,43,0.25) !important; }
+
+    .wg-name { font-size: 13pt !important; margin-bottom: 4pt !important; }
+    .wg-tag { font-size: 7pt !important; margin-bottom: 4pt !important; }
+    .wg-desc { font-size: 9pt !important; }
+
+    /* Narrative */
+    .narrative-box {
+      background: #1a1a2e !important;
+      color: #f5f0e8 !important;
+      padding: 24pt 28pt !important;
+      border-radius: 6pt !important;
+      page-break-inside: avoid;
+    }
+
+    .narrative-box::before { display: none; }
+    .narrative-box p { font-size: 10pt !important; line-height: 1.7 !important; margin-bottom: 10pt !important; }
+
+    /* Footer */
+    .pdf-footer {
+      display: block !important;
+      text-align: center;
+      margin-top: 24pt;
+      font-size: 8pt;
+      color: #8a8070;
+      border-top: 1pt solid #e8e0d0;
+      padding-top: 10pt;
+    }
+  }
+
+  /* Hide print-only footer on screen */
+  .pdf-footer { display: none; }
+
+  /* ─── NAME / EMAIL FORM ─── */
+  .intro-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .intro-form input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: var(--paper);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .intro-form input::placeholder { color: rgba(245,240,232,0.4); }
+  .intro-form input:focus { border-color: var(--accent); }
+
+  .form-error {
+    color: #ff8a7a;
+    font-size: 13px;
+    text-align: center;
+    display: none;
+    margin-top: -4px;
+  }
+
+  /* ─── SUBMISSION TOAST ─── */
+  .save-toast {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: rgba(26,122,74,0.12);
+    border: 1px solid rgba(26,122,74,0.3);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #1a7a4a;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .save-toast.error {
+    background: rgba(192,57,43,0.08);
+    border-color: rgba(192,57,43,0.25);
+    color: #c0392b;
+  }
+
+  .save-toast.show { display: flex; }
+
+  /* Name display in results hero */
+  .results-taker-name {
+    font-size: 15px;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  /* ─── NARRATIVE REPORT SECTIONS ─── */
+  .report-section {
+    margin-bottom: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+
+  .report-section-header {
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .report-section-header.dark { background: var(--ink); color: var(--paper); }
+  .report-section-header.warm { background: #f0e8dc; color: var(--ink); }
+  .report-section-header.cool { background: #e0e8f4; color: var(--ink); }
+  .report-section-header.green { background: #dff0e8; color: var(--ink); }
+  .report-section-header.amber { background: #fdf0e0; color: var(--ink); }
+  .report-section-header.rose { background: #f8e8e8; color: var(--ink); }
+  .report-section-header.slate { background: #e8eaf0; color: var(--ink); }
+  .report-section-header.teal { background: #dff0ed; color: var(--ink); }
+  .report-section-header.gold { background: #fdf6e0; color: var(--ink); }
+  .report-section-header.ink2 { background: #2d2d4a; color: var(--paper); }
+
+  .report-section-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .report-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .report-section-header.dark .report-section-title,
+  .report-section-header.ink2 .report-section-title { color: var(--paper); }
+
+  .report-section-body {
+    padding: 24px 28px;
+    background: var(--white);
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: #2a2a3a;
+  }
+
+  .report-section-body p { margin-bottom: 14px; }
+  .report-section-body p:last-child { margin-bottom: 0; }
+
+  .report-section-body ul {
+    margin: 10px 0 14px 0;
+    padding-left: 20px;
+  }
+
+  .report-section-body ul li {
+    margin-bottom: 6px;
+    line-height: 1.7;
+  }
+
+  .report-highlight {
+    display: inline;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .type-chip {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin: 0 2px;
+  }
+
+  .type-chip.green { background: #1a7a4a; }
+  .type-chip.blue  { background: var(--accent2); }
+  .type-chip.amber { background: var(--accent); }
+  .type-chip.rose  { background: #c0392b; }
+
+  @media (max-width: 480px) {
+    .report-section-header { padding: 14px 18px; }
+    .report-section-body { padding: 18px; font-size: 14px; }
+    .report-section-title { font-size: 16px; }
+  }
+
+  @media print {
+    .report-section { page-break-inside: avoid; margin-bottom: 18pt !important; border: 0.5pt solid #ccc !important; }
+    .report-section-header { padding: 10pt 16pt !important; }
+    .report-section-title { font-size: 13pt !important; }
+    .report-section-body { padding: 12pt 16pt !important; font-size: 9pt !important; line-height: 1.6 !important; }
+    .report-section-body p { margin-bottom: 7pt !important; }
+    .report-section-body ul { margin: 6pt 0 8pt 0 !important; }
+    .report-section-body ul li { margin-bottom: 3pt !important; }
+    .type-chip { font-size: 8pt !important; padding: 2pt 6pt !important; }
+    .report-section-icon { font-size: 16px !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="intro-content">
+    <div class="intro-label">Team & Leadership Assessment</div>
+    <h1 class="intro-title">The <em>Catalyst</em> Profile</h1>
+    <p class="intro-desc">A comprehensive assessment combining the Myers-Briggs Type Indicator and the Working Types framework — designed to help educators and leaders understand themselves, build stronger teams, and grow into their full potential.</p>
+    <div class="intro-badges">
+      <span class="badge">80 Questions</span>
+      <span class="badge">~15 Minutes</span>
+      <span class="badge">MBTI + Working Types</span>
+      <span class="badge">Team & Leadership Report</span>
+    </div>
+    <div class="intro-form">
+      <input type="text" id="userName" placeholder="Your full name" autocomplete="name" />
+      <input type="email" id="userEmail" placeholder="Your email address" autocomplete="email" />
+    </div>
+    <div class="form-error" id="formError">Please enter your name and a valid email to continue.</div>
+    <button class="start-btn" onclick="startQuiz()">Begin Assessment →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="quiz-header">
+    <div class="quiz-logo">The Catalyst Profile</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 of 80</div>
+    </div>
+  </div>
+  <div id="sectionHeader" class="section-header">
+    <div class="section-label" id="sectionLabel"></div>
+    <div class="section-title" id="sectionTitle"></div>
+  </div>
+  <div class="questions-container" id="questionsContainer"></div>
+  <div class="nav-area">
+    <div class="nav-btns">
+      <button class="nav-btn prev" id="prevBtn" onclick="prevPage()">← Back</button>
+      <button class="nav-btn next" id="nextBtn" onclick="nextPage()">Continue →</button>
+    </div>
+    <div class="error-msg" id="errorMsg">⚠ Please answer all questions on this page before continuing.</div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+  <div class="results-hero">
+    <div class="results-hero-inner">
+      <div class="results-label">The Catalyst Profile</div>
+      <div class="results-taker-name" id="resultsTakerName"></div>
+      <div class="mbti-type-display" id="mbtiTypeDisplay"></div>
+      <div class="mbti-name" id="mbtiTypeName"></div>
+    </div>
+  </div>
+  <div class="results-body">
+    <div class="results-section">
+      <div class="results-section-title">Myers-Briggs Dimensions</div>
+      <div id="mbtiDimensions"></div>
+    </div>
+    <div class="results-section">
+      <div class="results-section-title">Working Types Profile</div>
+      <div class="wg-grid" id="wgGrid"></div>
+    </div>
+    <div id="narrativeSections"></div>
+    <div class="result-actions">
+      <button class="save-pdf-btn" onclick="savePDF()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Save as PDF
+      </button>
+      <button class="retake-btn" onclick="retake()">Retake Assessment</button>
+    </div>
+    <div class="save-toast" id="saveToast">
+      <span id="saveToastMsg"></span>
+    </div>
+    <div class="pdf-footer">
+      The Catalyst Profile &nbsp;·&nbsp; Myers-Briggs + Working Types &nbsp;·&nbsp; <span id="pdfDate"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// QUESTIONS
+//
+// SCORING FIX: Each MBTI dimension pair now scores on a SINGLE scale.
+// 'pole' indicates which end of the scale this question measures:
+//   pole: 'pos' → high score (4-5) = trait A  (e.g. E, S, T, J)
+//   pole: 'neg' → high score (4-5) = trait B  (e.g. I, N, F, P)
+// This eliminates the double-scoring problem where someone could
+// score high on BOTH sides of a dimension.
+// ─────────────────────────────────────────────
+
+const sections = [
+  {
+    label: "Section 1 of 5",
+    title: "Energy & Social Orientation",
+    questions: [
+      // E/I dimension — pos = Extrovert leaning, neg = Introvert leaning
+      { text: "I feel energized after spending time in large social gatherings.", dim: "EI", pole: "pos" },
+      { text: "I prefer to think out loud by talking through ideas with others.", dim: "EI", pole: "pos" },
+      { text: "I find it easy to introduce myself to strangers at events.", dim: "EI", pole: "pos" },
+      { text: "After a long day, socializing helps me recharge more than solitude.", dim: "EI", pole: "pos" },
+      { text: "I tend to process my thoughts internally before sharing them.", dim: "EI", pole: "neg" },
+      { text: "I need significant alone time to feel like myself.", dim: "EI", pole: "neg" },
+      { text: "I prefer deep one-on-one conversations over group discussions.", dim: "EI", pole: "neg" },
+      { text: "Too much social interaction leaves me feeling drained.", dim: "EI", pole: "neg" },
+      { text: "I am often the one who initiates plans and keeps the energy up in a group.", dim: "EI", pole: "pos" },
+      { text: "I find I do my best work in quiet, uninterrupted environments.", dim: "EI", pole: "neg" },
+      { text: "I enjoy being the center of attention in social settings.", dim: "EI", pole: "pos" },
+      { text: "I prefer written communication over verbal when sharing complex ideas.", dim: "EI", pole: "neg" },
+      { text: "I get bored quickly if I spend too much time alone.", dim: "EI", pole: "pos" },
+      { text: "I often reflect carefully before contributing to group discussions.", dim: "EI", pole: "neg" },
+      { text: "Meeting new people gives me a sense of excitement and energy.", dim: "EI", pole: "pos" },
+      { text: "I prefer having a small, close-knit circle over a wide network.", dim: "EI", pole: "neg" },
+    ]
+  },
+  {
+    label: "Section 2 of 5",
+    title: "How You Take In Information",
+    questions: [
+      // S/N dimension — pos = Sensing, neg = Intuitive
+      { text: "I trust concrete, proven facts more than abstract theories.", dim: "SN", pole: "pos" },
+      { text: "I prefer step-by-step instructions over open-ended guidelines.", dim: "SN", pole: "pos" },
+      { text: "I notice and remember specific details more than the big picture.", dim: "SN", pole: "pos" },
+      { text: "I focus on what is real and tangible rather than what could be.", dim: "SN", pole: "pos" },
+      { text: "I enjoy exploring hypothetical scenarios and imagining new possibilities.", dim: "SN", pole: "neg" },
+      { text: "I often think about connections and patterns between unrelated ideas.", dim: "SN", pole: "neg" },
+      { text: "I am drawn to innovation and am comfortable with ambiguity.", dim: "SN", pole: "neg" },
+      { text: "I trust my gut instincts even when they contradict the data.", dim: "SN", pole: "neg" },
+      { text: "I prefer learning through hands-on practice rather than theory.", dim: "SN", pole: "pos" },
+      { text: "I often find myself thinking several steps ahead into the future.", dim: "SN", pole: "neg" },
+      { text: "I value experience and track record over untested new ideas.", dim: "SN", pole: "pos" },
+      { text: "I enjoy reading between the lines to find deeper meaning.", dim: "SN", pole: "neg" },
+      { text: "I like having a clear, established process to follow.", dim: "SN", pole: "pos" },
+      { text: "I find theoretical and abstract subjects fascinating.", dim: "SN", pole: "neg" },
+      { text: "I prefer instructions that are specific and literal.", dim: "SN", pole: "pos" },
+      { text: "I often see possibilities that others haven't considered.", dim: "SN", pole: "neg" },
+    ]
+  },
+  {
+    label: "Section 3 of 5",
+    title: "How You Make Decisions & Organize Life",
+    questions: [
+      // T/F dimension — pos = Thinking, neg = Feeling
+      { text: "I make decisions primarily based on logic and objective analysis.", dim: "TF", pole: "pos" },
+      { text: "I find it easy to give critical feedback without worrying about hurt feelings.", dim: "TF", pole: "pos" },
+      { text: "I value fairness and consistency over individual circumstances.", dim: "TF", pole: "pos" },
+      { text: "I pride myself on being straightforward, even if it's uncomfortable.", dim: "TF", pole: "pos" },
+      { text: "When making decisions, I first consider how people will be affected.", dim: "TF", pole: "neg" },
+      { text: "I find it hard to say something true if it will deeply hurt someone.", dim: "TF", pole: "neg" },
+      { text: "Harmony in relationships matters more to me than being technically right.", dim: "TF", pole: "neg" },
+      { text: "I often take on others' emotional burdens as if they were my own.", dim: "TF", pole: "neg" },
+      // J/P dimension — pos = Judging, neg = Perceiving
+      { text: "I prefer to have a clear plan before starting a project.", dim: "JP", pole: "pos" },
+      { text: "I feel unsettled when things are left open-ended or unresolved.", dim: "JP", pole: "pos" },
+      { text: "I like to keep my options open and avoid committing too early.", dim: "JP", pole: "neg" },
+      { text: "I often start multiple projects simultaneously and switch between them.", dim: "JP", pole: "neg" },
+      { text: "I create to-do lists and enjoy checking things off.", dim: "JP", pole: "pos" },
+      { text: "I enjoy the spontaneity of deciding what to do as the moment arrives.", dim: "JP", pole: "neg" },
+      { text: "I feel a sense of accomplishment by completing things ahead of schedule.", dim: "JP", pole: "pos" },
+      { text: "I tend to procrastinate, but often produce good work under pressure.", dim: "JP", pole: "neg" },
+    ]
+  },
+  {
+    label: "Section 4 of 5",
+    title: "Work & Thinking Style",
+    questions: [
+      // Working Types — scored independently; averaged per type so question count differences don't skew results
+      { text: "I naturally ask 'why' and love exploring questions that don't have clear answers.", dim: "W" },
+      { text: "I find deep satisfaction in pondering what could be better in the world.", dim: "W" },
+      { text: "I often sense when something important is being overlooked, even if I can't prove it yet.", dim: "W" },
+      { text: "I am drawn to mysteries, unanswered questions, and big-picture thinking.", dim: "W" },
+      { text: "I thrive when I'm given a blank slate and asked to come up with a new solution.", dim: "Inv" },
+      { text: "I enjoy being the first to conceptualize a new product, approach, or idea.", dim: "Inv" },
+      { text: "Creating something original from nothing is one of my greatest strengths.", dim: "Inv" },
+      { text: "I naturally generate ideas and solutions in brainstorming sessions.", dim: "Inv" },
+      { text: "I have a strong instinct for judging whether an idea will work before it's tested.", dim: "D" },
+      { text: "I can quickly identify what's missing or flawed in a plan.", dim: "D" },
+      { text: "People often ask for my opinion because they trust my instincts.", dim: "D" },
+      { text: "I feel a strong sense of certainty when something is right or wrong, even without data.", dim: "D" },
+      { text: "I love motivating and rallying others around a shared goal or mission.", dim: "G" },
+      { text: "I am naturally persuasive and can inspire people to take action.", dim: "G" },
+      { text: "I enjoy presenting ideas to a group and generating enthusiasm.", dim: "G" },
+      { text: "I often find myself stepping up to champion a cause that others care about.", dim: "G" },
+    ]
+  },
+  {
+    label: "Section 5 of 5",
+    title: "Collaboration & Follow-Through",
+    questions: [
+      { text: "I genuinely enjoy helping others accomplish what they need, even without recognition.", dim: "En" },
+      { text: "I'm often the person who makes sure everyone feels included and supported.", dim: "En" },
+      { text: "I find deep satisfaction in assisting others, not just leading them.", dim: "En" },
+      { text: "I'm the person teammates turn to when they need encouragement or practical help.", dim: "En" },
+      { text: "Once I commit to a project, I push through to completion no matter what.", dim: "Te" },
+      { text: "I feel a strong need to finish what I've started, even when it gets difficult.", dim: "Te" },
+      { text: "I thrive in the final stages of a project, ensuring everything gets done.", dim: "Te" },
+      { text: "I am often the one making sure loose ends are tied up at the end.", dim: "Te" },
+      { text: "I am comfortable challenging assumptions, even when others resist.", dim: "W" },
+      { text: "I enjoy taking an idea someone else started and making it even better.", dim: "Inv" },
+      { text: "I can usually tell early on whether a plan has real potential or not.", dim: "D" },
+      { text: "I naturally take ownership in helping a group move from discussion to action.", dim: "G" },
+      { text: "I make it a priority to acknowledge the contributions of people around me.", dim: "En" },
+      { text: "I am known for my follow-through and reliability in completing commitments.", dim: "Te" },
+      { text: "I often find myself asking questions that help a group think more deeply about a problem.", dim: "W" },
+      { text: "I get energy from identifying what needs to happen next in a group effort.", dim: "G" },
+    ]
+  }
+];
+
+// Flatten questions
+const allQuestions = [];
+sections.forEach((sec, si) => {
+  sec.questions.forEach(q => {
+    allQuestions.push({ ...q, sectionIndex: si });
+  });
+});
+
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwixmS2C4po-gHfKuqlBSf9CCSsLCBPR7YyBZeQ_YqwzgEL2qmy2WOjq1ATLD__pgExNA/exec';
+
+const QUESTIONS_PER_PAGE = 16;
+const totalPages = sections.length;
+let currentPage = 0;
+let answers = {};
+let takerName = '';
+let takerEmail = '';
+
+function startQuiz() {
+  const nameEl  = document.getElementById('userName');
+  const emailEl = document.getElementById('userEmail');
+  const errEl   = document.getElementById('formError');
+
+  const name  = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (!name || !emailValid) {
+    errEl.style.display = 'block';
+    if (!name) nameEl.focus();
+    else emailEl.focus();
+    return;
+  }
+
+  takerName  = name;
+  takerEmail = email;
+  errEl.style.display = 'none';
+
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  renderPage(0);
+}
+
+function renderPage(page) {
+  const sec = sections[page];
+  document.getElementById('sectionLabel').textContent = sec.label;
+  document.getElementById('sectionTitle').textContent = sec.title;
+
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+
+  const startIdx = page * QUESTIONS_PER_PAGE;
+  const pageQuestions = allQuestions.slice(startIdx, startIdx + QUESTIONS_PER_PAGE);
+
+  pageQuestions.forEach((q, i) => {
+    const globalIdx = startIdx + i;
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.innerHTML = `
+      <div class="question-num">Q${globalIdx + 1} of ${allQuestions.length}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="likert-scale" id="likert_${globalIdx}">
+        ${[1,2,3,4,5].map(v => `<button class="likert-btn${answers[globalIdx]===v?' selected':''}" data-val="${v}" onclick="setAnswer(${globalIdx},${v})">${v}</button>`).join('')}
+      </div>
+      <div class="likert-labels">
+        <span>Strongly<br>Disagree</span>
+        <span>Neutral</span>
+        <span>Strongly<br>Agree</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.getElementById('prevBtn').style.visibility = page === 0 ? 'hidden' : 'visible';
+  const nextBtn = document.getElementById('nextBtn');
+  if (page === totalPages - 1) {
+    nextBtn.textContent = 'View My Results →';
+    nextBtn.className = 'nav-btn finish';
+  } else {
+    nextBtn.textContent = 'Continue →';
+    nextBtn.className = 'nav-btn next';
+  }
+
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+function setAnswer(idx, val) {
+  answers[idx] = val;
+  document.getElementById(`likert_${idx}`).querySelectorAll('.likert-btn').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
+  });
+  document.getElementById('errorMsg').style.display = 'none';
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = allQuestions.length;
+  const answered = Object.keys(answers).length;
+  document.getElementById('progressFill').style.width = ((answered / total) * 100) + '%';
+  document.getElementById('progressText').textContent = `${answered} of ${total}`;
+}
+
+function pageIsComplete(page) {
+  const startIdx = page * QUESTIONS_PER_PAGE;
+  for (let i = startIdx; i < startIdx + QUESTIONS_PER_PAGE; i++) {
+    if (answers[i] === undefined) return false;
+  }
+  return true;
+}
+
+function nextPage() {
+  if (!pageIsComplete(currentPage)) {
+    document.getElementById('errorMsg').style.display = 'block';
+    // Scroll to first unanswered
+    const startIdx = currentPage * QUESTIONS_PER_PAGE;
+    for (let i = startIdx; i < startIdx + QUESTIONS_PER_PAGE; i++) {
+      if (answers[i] === undefined) {
+        document.getElementById(`likert_${i}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        break;
+      }
+    }
+    return;
+  }
+  if (currentPage < totalPages - 1) {
+    currentPage++;
+    renderPage(currentPage);
+  } else {
+    showResults();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    renderPage(currentPage);
+  }
+}
+
+// ─────────────────────────────────────────────
+// SCORING — Fixed dimensional scoring
+// For EI, SN, TF, JP: compute a net score
+//   pos questions: score = val (5 = strongly agree = more of trait A)
+//   neg questions: score = 6 - val (5 = strongly agree = more of trait B, reflected to A)
+// Then average: >3 = trait A, <3 = trait B
+// ─────────────────────────────────────────────
+function computeScores() {
+  const dimScores = { EI: [], SN: [], TF: [], JP: [], W: [], Inv: [], D: [], G: [], En: [], Te: [] };
+
+  allQuestions.forEach((q, idx) => {
+    const val = answers[idx] !== undefined ? answers[idx] : 3;
+    if (q.dim === 'EI' || q.dim === 'SN' || q.dim === 'TF' || q.dim === 'JP') {
+      // pos = high score means first letter (E, S, T, J)
+      // neg = high score means second letter (I, N, F, P) — reflect score
+      const adjusted = q.pole === 'pos' ? val : (6 - val);
+      dimScores[q.dim].push(adjusted);
+    } else {
+      dimScores[q.dim].push(val);
+    }
+  });
+
+  const avg = {};
+  for (const k in dimScores) {
+    const arr = dimScores[k];
+    avg[k] = arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 3;
+  }
+  return avg;
+}
+
+function getMBTI(avg) {
+  // EI: >3 = E, <3 = I
+  // SN: >3 = S, <3 = N
+  // TF: >3 = T, <3 = F
+  // JP: >3 = J, <3 = P
+  return (avg.EI >= 3 ? 'E' : 'I') +
+         (avg.SN >= 3 ? 'S' : 'N') +
+         (avg.TF >= 3 ? 'T' : 'F') +
+         (avg.JP >= 3 ? 'J' : 'P');
+}
+
+// Percentage leaning toward first letter of each pair
+function getDimPct(score) {
+  // score 1-5, midpoint=3
+  // Returns % toward first letter (E/S/T/J): 50% = neutral, 100% = fully first, 0% = fully second
+  return Math.round(((score - 1) / 4) * 100);
+}
+
+const mbtiNames = {
+  ISTJ:'The Inspector', ISFJ:'The Protector', INFJ:'The Counselor', INTJ:'The Mastermind',
+  ISTP:'The Craftsman',  ISFP:'The Composer',  INFP:'The Healer',   INTP:'The Architect',
+  ESTP:'The Dynamo',     ESFP:'The Performer', ENFP:'The Champion', ENTP:'The Visionary',
+  ESTJ:'The Supervisor', ESFJ:'The Provider',  ENFJ:'The Teacher',  ENTJ:'The Commander'
+};
+
+const wgDescriptions = {
+  W:   { name: 'Wonder',      desc: 'You naturally ponder big questions and identify what needs attention. You bring curiosity and contemplation to every challenge.' },
+  Inv: { name: 'Invention',   desc: 'You create original ideas and solutions. You thrive when given creative freedom to design something from nothing.' },
+  D:   { name: 'Discernment', desc: 'You have an intuitive ability to evaluate ideas and situations. Your instincts help teams avoid mistakes before they happen.' },
+  G:   { name: 'Galvanizing', desc: 'You inspire and motivate others to take action. You bring energy and enthusiasm that moves teams forward.' },
+  En:  { name: 'Enablement',  desc: 'You provide support and assistance to help others succeed. You find deep satisfaction in serving and uplifting those around you.' },
+  Te:  { name: 'Tenacity',    desc: "You push projects through to completion. You ensure that important work doesn't fall through the cracks." }
+};
+
+function getWorkingGenius(avg) {
+  const wgKeys = ['W','Inv','D','G','En','Te'];
+  const ranked = [...wgKeys].sort((a, b) => avg[b] - avg[a]);
+  return {
+    genius:      ranked.slice(0, 2),
+    competency:  ranked.slice(2, 4),
+    frustration: ranked.slice(4, 6)
+  };
+}
+
+// ─────────────────────────────────────────────
+// RESULTS
+// ─────────────────────────────────────────────
+function showResults() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const avg = computeScores();
+  const mbti = getMBTI(avg);
+  const wg = getWorkingGenius(avg);
+
+  document.getElementById('resultsTakerName').textContent = takerName;
+  document.getElementById('mbtiTypeDisplay').textContent = mbti;
+  document.getElementById('mbtiTypeName').textContent = mbtiNames[mbti] || '';
+
+  // Submit to Google Sheets
+  submitToSheets(mbti, wg, avg);
+
+  // MBTI Dimension bars
+  const dimContainer = document.getElementById('mbtiDimensions');
+  const dims = [
+    { key: 'EI', labelA: 'Extrovert', letterA: 'E', labelB: 'Introvert',  letterB: 'I' },
+    { key: 'SN', labelA: 'Sensing',   letterA: 'S', labelB: 'Intuitive',  letterB: 'N' },
+    { key: 'TF', labelA: 'Thinking',  letterA: 'T', labelB: 'Feeling',    letterB: 'F' },
+    { key: 'JP', labelA: 'Judging',   letterA: 'J', labelB: 'Perceiving', letterB: 'P' },
+  ];
+
+  dims.forEach(dim => {
+    const score = avg[dim.key]; // 1-5
+    const pctA = getDimPct(score); // % toward A (0-100)
+    const pctB = 100 - pctA;
+    const dominantLetter = score >= 3 ? dim.letterA : dim.letterB;
+    const dominantPct = score >= 3 ? pctA : pctB;
+
+    // Bar: left half = A trait (accent2), right half = B trait (accent)
+    // left fill: from center leftward, width = (pctA - 50) if >50, else 0
+    // right fill: from center rightward, width = (pctB - 50) if >50, else 0
+    const leftWidth  = Math.max(0, pctA - 50);
+    const rightWidth = Math.max(0, pctB - 50);
+
+    const row = document.createElement('div');
+    row.className = 'dimension-row';
+    row.innerHTML = `
+      <div class="dim-label">${dim.labelA}</div>
+      <div class="dim-bar-bg">
+        <div class="dim-bar-fill left"  style="width:${leftWidth}%"></div>
+        <div class="dim-bar-fill right" style="width:${rightWidth}%"></div>
+      </div>
+      <div class="dim-pct">${dominantLetter} ${dominantPct}%</div>
+      <div class="dim-label-right">${dim.labelB}</div>
+    `;
+    dimContainer.appendChild(row);
+  });
+
+  // Working Types cards
+  const wgGrid = document.getElementById('wgGrid');
+  ['genius','competency','frustration'].forEach(tier => {
+    wg[tier].forEach(key => {
+      const info = wgDescriptions[key];
+      const card = document.createElement('div');
+      card.className = `wg-card ${tier}`;
+      card.innerHTML = `
+        <div class="wg-tag ${tier}">${tier === 'genius' ? '★ Type' : tier === 'competency' ? '◎ Competency' : '✕ Frustration'}</div>
+        <div class="wg-name">${info.name}</div>
+        <div class="wg-desc">${info.desc}</div>
+      `;
+      wgGrid.appendChild(card);
+    });
+  });
+
+  // Full Catalyst Profile narrative report
+  const narrativeContainer = document.getElementById('narrativeSections');
+  narrativeContainer.innerHTML = generateFullReport(mbti, wg, avg);
+}
+
+// ─────────────────────────────────────────────
+// FULL CATALYST PROFILE REPORT ENGINE
+// ─────────────────────────────────────────────
+
+function section(icon, title, colorClass, bodyHTML) {
+  return `
+    <div class="report-section">
+      <div class="report-section-header ${colorClass}">
+        <div class="report-section-icon">${icon}</div>
+        <div class="report-section-title">${title}</div>
+      </div>
+      <div class="report-section-body">${bodyHTML}</div>
+    </div>`;
+}
+
+function chip(text, color) {
+  return `<span class="type-chip ${color||''}">${text}</span>`;
+}
+
+function generateFullReport(mbti, wg, avg) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const name = mbtiNames[mbti];
+  const g1key = wg.genius[0], g2key = wg.genius[1];
+  const c1key = wg.competency[0], c2key = wg.competency[1];
+  const f1key = wg.frustration[0], f2key = wg.frustration[1];
+  const g1 = wgDescriptions[g1key].name, g2 = wgDescriptions[g2key].name;
+  const c1 = wgDescriptions[c1key].name, c2 = wgDescriptions[c2key].name;
+  const f1 = wgDescriptions[f1key].name, f2 = wgDescriptions[f2key].name;
+
+  // ── Helper descriptors ──
+  const isE = EI === 'E', isS = SN === 'S', isT = TF === 'T', isJ = JP === 'J';
+
+  const energyWord   = isE ? 'extroverted' : 'introverted';
+  const infoWord     = isS ? 'sensing' : 'intuitive';
+  const decisionWord = isT ? 'thinking' : 'feeling';
+  const structureWord= isJ ? 'judging' : 'perceiving';
+
+  // ── MBTI best matches (simplified compatibility heuristic) ──
+  // Same SN + TF = shared core; different EI/JP = complementary energy
+  const allTypes = ['ISTJ','ISFJ','INFJ','INTJ','ISTP','ISFP','INFP','INTP',
+                    'ESTP','ESFP','ENFP','ENTP','ESTJ','ESFJ','ENFJ','ENTJ'];
+
+  // Natural allies: share 2-3 letters, especially SN+TF
+  const allies = allTypes.filter(t =>
+    t !== mbti &&
+    t[1] === SN && t[2] === TF
+  ).slice(0, 3);
+
+  // Growth partners: share energy (EI) but differ in info/decision
+  const growthPartners = allTypes.filter(t =>
+    t !== mbti &&
+    !allies.includes(t) &&
+    t[0] === EI &&
+    (t[1] !== SN || t[2] !== TF)
+  ).slice(0, 2);
+
+  // Navigate carefully: opposite SN + opposite TF (most friction)
+  const friction = allTypes.filter(t =>
+    t[1] !== SN && t[2] !== TF && t !== mbti
+  ).slice(0, 3);
+
+  // ── WG best team complements ──
+  const wgAllKeys = ['W','Inv','D','G','En','Te'];
+  const neededGenius = wgAllKeys.filter(k => !wg.genius.includes(k) && !wg.competency.includes(k));
+
+  // ── SECTION 1: Profile at a Glance ──
+  const s1 = section('🔍', 'Your Profile at a Glance', 'dark', `
+    <p>You are <strong>${mbti} — ${name}</strong>, with Working Types in <strong>${g1}</strong> and <strong>${g2}</strong>. This combination places you among people who ${getGlanceDesc(mbti, wg.genius)}.</p>
+    <p>At the core of your personality are four dimensions: you are <span class="report-highlight">${energyWord}</span> in how you gain energy, <span class="report-highlight">${infoWord}</span> in how you take in information, oriented toward <span class="report-highlight">${decisionWord}</span> when making decisions, and <span class="report-highlight">${structureWord}</span> in how you organize your world.</p>
+    <p>Your Working Types profile tells a parallel story: you are built for <strong>${g1}</strong> and <strong>${g2}</strong>, capable in <strong>${c1}</strong> and <strong>${c2}</strong>, and most drained by work that demands <strong>${f1}</strong> and <strong>${f2}</strong>. Together, these two frameworks give a rich picture of not just who you are — but how you come alive at work.</p>
+  `);
+
+  // ── SECTION 2: Leadership Style ──
+  const s2 = section('🧭', 'Your Leadership Style', 'cool', `
+    <p>${getLeadershipStyle(mbti, wg.genius)}</p>
+    <p>${getLeadershipGenius(mbti, wg.genius, g1, g2)}</p>
+    <p>${getLeadershipWatch(mbti, wg.frustration, f1, f2)}</p>
+  `);
+
+  // ── SECTION 3: Teaching & Facilitation Style ──
+  const s3 = section('🎓', 'Your Teaching & Facilitation Style', 'warm', `
+    <p>${getTeachingStyle(mbti, g1, g2)}</p>
+    <p>${getTeachingGenius(mbti, wg.genius, g1, g2)}</p>
+    <p>${getTeachingTip(mbti)}</p>
+  `);
+
+  // ── SECTION 4: How You Work Best ──
+  const s4 = section('⚡', 'How You Work Best', 'amber', `
+    <p>You do your best work when the conditions around you align with your natural wiring. Here's what that looks like for a ${mbti}:</p>
+    <ul>${getWorkConditions(mbti, wg.genius, g1, g2, f1, f2).map(c => `<li>${c}</li>`).join('')}</ul>
+    <p>${getWorkDrains(mbti, wg.frustration, f1, f2)}</p>
+  `);
+
+  // ── SECTION 5: Your Blind Spots ──
+  const s5 = section('🪞', 'Your Blind Spots', 'rose', `
+    <p>Every strength casts a shadow. Understanding yours isn't a criticism — it's the foundation of genuine self-awareness and growth as both an educator and a leader.</p>
+    <ul>${getBlindSpots(mbti, wg.frustration, f1, f2).map(b => `<li>${b}</li>`).join('')}</ul>
+    <p>${getBlindSpotReminder(mbti)}</p>
+  `);
+
+  // ── SECTION 6: Best Team Matches ──
+  const s6 = section('🤝', 'Best Team Matches', 'green', `
+    <p>The most effective teams aren't built from people who think alike — they're built from people whose differences are intentional and complementary. Here's where you naturally thrive alongside others:</p>
+    <p><strong>Natural Allies</strong> — These types share your core approach to information and decision-making, making collaboration feel instinctive and trust come quickly: ${allies.map(t => chip(t,'green')).join(' ')} ${allies.map(t => mbtiNames[t]).join(', ')}.</p>
+    <p><strong>Growth Partners</strong> — These types energize you in different ways. They share your orientation but challenge you to see what you'd otherwise miss: ${growthPartners.map(t => chip(t,'blue')).join(' ')} ${growthPartners.map(t => mbtiNames[t]).join(', ')}.</p>
+    <p><strong>Working Types Complements</strong> — On a well-functioning team, you need people who bring <strong>${neededGenius.map(k => wgDescriptions[k].name).join('</strong> and <strong>')}</strong>. These are the working types that sit in your frustration zone, and having teammates who carry them naturally frees you to operate at your best.</p>
+    <p>${getTeamRoleDesc(mbti, wg.genius, g1, g2)}</p>
+  `);
+
+  // ── SECTION 7: Types to Navigate Carefully ──
+  const s7 = section('🧩', 'Types to Navigate Carefully', 'slate', `
+    <p>These aren't bad fits — they're growth edges. Types that create friction often do so because they process the world in ways that are genuinely foreign to your natural style. The friction is real, and naming it honestly is the first step to bridging it.</p>
+    <p><strong>Types with the most friction:</strong> ${friction.map(t => chip(t,'rose')).join(' ')} — ${friction.map(t => mbtiNames[t]).join(', ')}.</p>
+    <p>${getFrictionDesc(mbti, friction)}</p>
+    <p><strong>What helps:</strong> ${getFrictionBridge(mbti)}</p>
+    <p>As a leader or team member, it's worth noting that the people who challenge you most are often the ones who see what you don't. On a well-built team, that's not a problem — it's an asset.</p>
+  `);
+
+  // ── SECTION 8: Your Ideal Team Role ──
+  const s8 = section('🏆', 'Your Ideal Team Role', 'teal', `
+    <p>${getIdealRole(mbti, wg.genius, g1, g2)}</p>
+    <p>${getIdealRoleGenius(wg.genius, g1, g2, wg.competency, c1, c2)}</p>
+    <p>${getIdealRoleWarning(wg.frustration, f1, f2)}</p>
+  `);
+
+  // ── SECTION 9: Your Growth Path ──
+  const s9 = section('🌱', 'Your Growth Path', 'gold', `
+    <p>Self-awareness is where growth begins, but it's not where it ends. Here are the most meaningful steps you can take to grow as an educator and leader — grounded in your specific profile:</p>
+    <ul>${getGrowthSteps(mbti, wg, g1, g2, f1, f2).map(s => `<li>${s}</li>`).join('')}</ul>
+    <p>${getGrowthReminder(mbti)}</p>
+  `);
+
+  // ── SECTION 10: For Your Leader ──
+  const s10 = section('📋', 'For Your Leader', 'ink2', `
+    <p><em>This section is written for the leader, coach, or team builder who works with this person.</em></p>
+    <p>${getForLeader(mbti, wg, name, g1, g2, f1, f2)}</p>
+    <p><strong>To get the best from this person:</strong></p>
+    <ul>${getForLeaderTips(mbti, wg.genius, wg.frustration, g1, g2, f1, f2).map(t => `<li>${t}</li>`).join('')}</ul>
+    <p><strong>Leadership potential:</strong> ${getLeadershipPotential(mbti, wg.genius, g1, g2)}</p>
+  `);
+
+  return `
+    <div style="margin-bottom:12px; font-family:'Playfair Display',serif; font-size:13px; color:var(--muted); letter-spacing:2px; text-transform:uppercase;">Your Catalyst Report</div>
+    ${s1}${s2}${s3}${s4}${s5}${s6}${s7}${s8}${s9}${s10}
+  `;
+}
+
+// ─────────────────────────────────────────────
+// REPORT CONTENT FUNCTIONS
+// ─────────────────────────────────────────────
+
+function getGlanceDesc(mbti, genius) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const hasG = genius.includes('G'), hasInv = genius.includes('Inv');
+  const hasW = genius.includes('W'), hasD = genius.includes('D');
+  const hasEn = genius.includes('En'), hasTe = genius.includes('Te');
+  if (EI==='E' && hasG) return "energize the people around them and naturally move groups toward action";
+  if (EI==='I' && hasW) return "bring deep insight and thoughtful perspective to every challenge they engage";
+  if (SN==='N' && hasInv) return "see the world through a lens of possibility and are natural architects of new ideas";
+  if (TF==='F' && hasEn) return "build genuine connection and bring a rare combination of empathy and practical support";
+  if (TF==='T' && hasD) return "bring analytical rigor and instinctive judgment that teams rely on to avoid costly mistakes";
+  if (JP==='J' && hasTe) return "bring structure, follow-through, and a reliability that anchors every team they join";
+  return "bring a distinctive combination of insight, energy, and commitment to every team they're part of";
+}
+
+function getLeadershipStyle(mbti, genius) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const styles = {
+    'ENTJ': "You lead with vision and decisive authority. You are most comfortable when you have a clear goal, a capable team, and the latitude to make things happen quickly. People follow you because you project confidence and you deliver — but your speed can sometimes outpace those who need more time to process.",
+    'ENFJ': "You lead through relationships. Your greatest leadership strength is your ability to see potential in people before they see it in themselves, and to create environments where others feel safe to grow. You inspire loyalty because people trust that you genuinely care.",
+    'INTJ': "You lead through strategy and long-range thinking. You are most effective when you have the freedom to design systems and approaches, and a team that can execute. Your challenge as a leader is to slow down enough to bring others into your thinking before the plan is set.",
+    'INFJ': "You lead through vision and deep conviction. You are rare among leaders in that you combine strategic thinking with genuine empathy — you understand both where you're going and what it will take emotionally to get people there.",
+    'ESTJ': "You lead through structure, accountability, and proven processes. You are at your best running well-defined operations where expectations are clear and performance is measurable. Teams under your leadership know exactly what is expected — which creates safety and high performance.",
+    'ESFJ': "You lead through care and community. You create environments where people feel genuinely valued, and your instinct to maintain team harmony often prevents conflict before it starts. Your challenge is to ensure that the desire for harmony doesn't delay necessary hard conversations.",
+    'ISTJ': "You lead through consistency, thoroughness, and quiet reliability. People trust you because you do what you say and say what you mean. Your leadership is felt most not in dramatic moments, but in the steady, dependable excellence you model every day.",
+    'ISFJ': "You lead through service and deep loyalty to your people. You are the leader who remembers what matters to each team member, shows up in small but meaningful ways, and builds teams that feel like families. Your challenge is to advocate as loudly for yourself as you do for others.",
+    'ENTP': "You lead through ideas and intellectual energy. You challenge assumptions, push boundaries, and make groups think harder than they would on their own. Your risk is that you can leave people in a state of productive confusion without enough structure to act.",
+    'ENFP': "You lead through inspiration and possibility. You have a rare ability to see what people and teams could become, and your enthusiasm is genuinely contagious. Your challenge is follow-through — the exciting start must be matched by the unglamorous middle.",
+    'INTP': "You lead through expertise and analytical precision. People seek your counsel because your thinking is unusually rigorous and unconventional. Your challenge as a leader is to translate your insight into direction — others need to know not just what you think, but what you want them to do.",
+    'INFP': "You lead through values and authentic conviction. You are most powerful when advocating for something you believe in deeply, and you attract others who share those values. Your challenge is to pair your conviction with the operational clarity teams need to function.",
+    'ESTP': "You lead through action and adaptability. You are a natural crisis leader — at your best when things are moving fast and decisions need to be made with incomplete information. Your risk is losing the longer-term view when the immediate situation is engaging.",
+    'ESFP': "You lead through energy and presence. You make work feel alive, and your ability to read a room and respond in the moment is extraordinary. Your challenge is to develop systems that sustain performance when your personal energy isn't in the room.",
+    'ISTP': "You lead through competence and calm under pressure. You are the person others turn to when something is broken and needs to be fixed quickly. Your challenge as a leader is to communicate your thinking more openly — your clarity is an asset others deserve access to.",
+    'ISFP': "You lead through authenticity and quiet strength. You don't demand attention, but people notice the quality of your work, the care you bring, and the integrity you model. Your challenge is to step more visibly into leadership roles that your natural humility may cause you to undervalue."
+  };
+  return styles[mbti] || `As a ${mbti}, your leadership style is shaped by your ${mbti[0]==='E'?'outward energy':'inner depth'} and your ${mbti[2]==='T'?'analytical precision':'people-centered focus'}. You lead most authentically when your environment matches your natural strengths.`;
+}
+
+function getLeadershipGenius(mbti, genius, g1, g2) {
+  const hasG = genius.includes('G');
+  const hasInv = genius.includes('Inv');
+  const hasW = genius.includes('W');
+  const hasD = genius.includes('D');
+  const hasEn = genius.includes('En');
+  const hasTe = genius.includes('Te');
+
+  if (hasG && hasInv) return `Your working types in ${g1} and ${g2} make you a particularly powerful force at the front end of any initiative — you can generate the idea AND get people excited about it. The risk is that without strong Tenacity or Enablement partners, the momentum you create can fade before the work is done.`;
+  if (hasG && hasW) return `The combination of ${g1} and ${g2} gives you a distinctive leadership edge: you ask the questions others are afraid to ask, and then you rally people to actually do something about the answers. This is a rare and valuable pairing in educational leadership.`;
+  if (hasD && hasG) return `${g1} and ${g2} together make you one of the most valuable types in any leadership group — you can tell which ideas are worth pursuing AND move people to act on them. Teams with this pairing rarely waste energy on the wrong things.`;
+  if (hasW && hasInv) return `Your ${g1} and ${g2} make you a natural at the generative side of leadership — you ask the right questions and then build the answers. Your leadership challenge is in the execution phase, where your energy may drop once the creative work is done.`;
+  if (hasEn && hasTe) return `Your ${g1} and ${g2} make you an extraordinarily reliable and supportive leader. Teams under your care feel held and sustained. Your challenge is to ensure you're also comfortable setting direction, not just supporting it.`;
+  if (hasD && hasW) return `${g1} and ${g2} give you a powerful reflective leadership style. You see what others miss and you trust what you sense. The key is to pair your insight with a team that can translate your discernment into clear action.`;
+  return `Your working types in ${g1} and ${g2} shape how you show up as a leader in meaningful ways. Lean into them deliberately — they are your most reliable source of leadership energy and credibility.`;
+}
+
+function getLeadershipWatch(mbti, frustration, f1, f2) {
+  const hasF_G = frustration.includes('G');
+  const hasF_Inv = frustration.includes('Inv');
+  const hasF_W = frustration.includes('W');
+  const hasF_D = frustration.includes('D');
+  const hasF_En = frustration.includes('En');
+  const hasF_Te = frustration.includes('Te');
+
+  if (hasF_G) return `One honest challenge: ${f1} and ${f2} are in your frustration zone. Rallying a group and sustaining their enthusiasm may cost you more energy than it looks like from the outside. This doesn't mean you can't do it — it means you should build a team that contains natural Galvanizers so you don't have to carry that load alone.`;
+  if (hasF_Te) return `Watch for the pattern where strong ideas don't make it across the finish line. ${f1} and ${f2} being in your frustration zone means follow-through is the area most likely to create friction for you. Partnering with strong Tenacity types is one of the most leveraged investments you can make.`;
+  if (hasF_En) return `Be intentional about creating space to support the individuals on your team, not just the work. ${f1} and ${f2} sit in your frustration zone, which can sometimes read to others as a lack of care — even when that's far from the truth. Small, consistent acts of acknowledgment go a long way.`;
+  if (hasF_W) return `If you find yourself impatient with open-ended exploration or long-horizon questions, that's your ${f1} frustration showing up. The most important questions in education often don't have quick answers. Lean on Wonder-types in your team to hold that space while you keep things moving.`;
+  return `As with any leader, your Working Frustrations — ${f1} and ${f2} — are the areas most likely to create blind spots if left unexamined. Be honest with yourself and your team about where you need support.`;
+}
+
+function getTeachingStyle(mbti, g1, g2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const styles = {
+    E: "In the classroom or professional setting, you are a natural activator. You learn by doing and teaching by engaging — your lessons tend to be dynamic, discussion-driven, and energizing for students who match your pace.",
+    I: "In the classroom or professional setting, you create depth. Your lessons are carefully considered, your explanations precise, and your feedback thorough. Students who need time to process will thrive with you."
+  };
+  const infoStyles = {
+    S: "You anchor your teaching in the concrete and the practical. Examples are real, steps are clear, and students always know what's expected. You excel at making complex ideas accessible and sequenced.",
+    N: "You teach through patterns, possibilities, and the bigger picture. You help students connect ideas across subjects, see implications, and think beyond the immediate question. You are most energized when you can explore ideas rather than simply deliver them."
+  };
+  return `${styles[EI]} ${infoStyles[SN]}`;
+}
+
+function getTeachingGenius(mbti, genius, g1, g2) {
+  const hasG = genius.includes('G'), hasInv = genius.includes('Inv');
+  const hasW = genius.includes('W'), hasD = genius.includes('D');
+  const hasEn = genius.includes('En'), hasTe = genius.includes('Te');
+
+  if (hasG) return `Your ${g1} working type means you are particularly effective at launching units, energizing groups before big challenges, and getting buy-in from reluctant learners. You can read a room and pivot your energy in real time — a critical skill in any classroom.`;
+  if (hasInv) return `Your ${g1} working type makes you a natural curriculum innovator. You are rarely satisfied doing what was done last year — you want to improve it, redesign it, or approach it from an angle no one has tried. Students benefit from your willingness to experiment.`;
+  if (hasW) return `Your ${g1} working type makes you one of the rare educators who truly models intellectual curiosity. When you don't know something, you pursue it. When a student asks a hard question, you treat it as the gift it is. This is deeply formative for young learners.`;
+  if (hasD) return `Your ${g1} working type means you can read a lesson in real time — you sense when something isn't working before the data tells you, and you trust your instincts enough to adjust. This is one of the hardest skills to teach and one of the most valuable in education.`;
+  if (hasEn) return `Your ${g1} working type makes you the educator that students remember long after the content is forgotten. Your attentiveness to individuals — who is struggling, who is bored, who needs encouragement — creates the relational safety that makes real learning possible.`;
+  if (hasTe) return `Your ${g1} working type means students always know where they stand with you. You follow through on what you say, return work when you promise to, and bring the same commitment to the classroom every day. That consistency is more valuable than it might appear.`;
+  return `Your working types in ${g1} and ${g2} give your teaching a distinctive character. Lean into them — they're not just your strengths, they're the things that make your classroom irreplaceable.`;
+}
+
+function getTeachingTip(mbti) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  if (EI==='E' && JP==='J') return "One growth edge: your pace and planning style can sometimes outrun your students' processing speed. Build in more wait time and unstructured reflection than feels comfortable to you — it will pay dividends.";
+  if (EI==='E' && JP==='P') return "Watch for the gap between your enthusiasm for new approaches and your students' need for consistency. Balance your love of variety with enough routine that learners feel grounded.";
+  if (EI==='I' && JP==='J') return "Your students may occasionally need more explicit encouragement and celebration than comes naturally to you. Building in visible moments of acknowledgment — even brief ones — can transform the emotional climate of your classroom.";
+  if (EI==='I' && JP==='P') return "Your flexibility and depth are genuine assets, but students with high structure needs may sometimes feel unmoored. Clearer signposting of what comes next can help without requiring you to sacrifice your natural teaching style.";
+  if (TF==='T') return "Your standards are high — which is a gift — but be intentional about making sure students understand that your feedback is in service of their growth, not a judgment of their worth. That context changes how critique lands.";
+  return "Your greatest teaching gift is the one that feels most natural to you. Protect it intentionally. The best educators don't try to be everything — they go deep in what only they can offer.";
+}
+
+function getWorkConditions(mbti, genius, g1, g2, f1, f2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const conditions = [];
+  if (EI==='E') conditions.push("You do your best thinking in conversation — you process out loud and your ideas sharpen through dialogue with others. Isolation is a productivity killer for you.");
+  else conditions.push("You need protected time to think. Back-to-back meetings or constant interruptions degrade your performance more than most people around you will recognize. Guard your processing time.");
+  if (SN==='S') conditions.push("You work best with clear objectives, defined processes, and concrete deliverables. Ambiguity doesn't energize you — it slows you down.");
+  else conditions.push("You work best with room to explore and adapt. Overly rigid structures can suppress the creative thinking that is your greatest contribution.");
+  if (TF==='T') conditions.push("You need to know the reasoning behind decisions. Being told what to do without understanding why creates frustration and disengagement.");
+  else conditions.push("You need to feel that the people around you are genuinely respected and treated well. A toxic or dismissive team culture affects your performance more than most.");
+  if (JP==='J') conditions.push("Deadlines, clear timelines, and well-organized systems help you produce your best work. Open-ended timelines are stressful, not freeing.");
+  else conditions.push("You need some flexibility in how and when you work. Overly rigid schedules suppress your best thinking.");
+  conditions.push(`Work that draws on your working types in ${g1} and ${g2} fills your tank. When your role consistently asks you to ${f1.toLowerCase()} or ${f2.toLowerCase()}, you will eventually burn out — even if you're good at it.`);
+  return conditions;
+}
+
+function getWorkDrains(mbti, frustration, f1, f2) {
+  return `Conversely, sustained work in your frustration areas — ${f1} and ${f2} — is the most reliable path to burnout for someone with your profile. This isn't weakness; it's wiring. The most effective leaders build teams specifically to cover these areas, not because they can't do the work, but because doing it consistently extracts a cost that compounds over time.`;
+}
+
+function getBlindSpots(mbti, frustration, f1, f2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const spots = [];
+  if (EI==='E') spots.push("You may underestimate how much air you take up in a room. Your introverted colleagues are often thinking deeply — they just need more time and safety to contribute. Creating silence intentionally is a leadership skill.");
+  else spots.push("You may be less visible than your impact warrants. Others may underestimate your contributions because you don't broadcast them. Learning to speak up — even when it's uncomfortable — is essential for leadership influence.");
+  if (SN==='S') spots.push("You may be skeptical of ideas that can't be immediately validated by evidence or experience. Some of the most important educational innovations look impractical before they prove themselves. Staying curious about the 'what if' is worth the effort.");
+  else spots.push("You may lose people with your big-picture thinking when they need the concrete next step. Your vision is a gift — but it lands only when it's paired with 'and here's how we start.'");
+  if (TF==='T') spots.push("Your directness, which you rightly value, can land harder than you intend — especially on Feeling types who experience critique more personally. Separating the feedback from the relationship is something most people need more explicitly than you do.");
+  else spots.push("Your desire for harmony can delay conversations that need to happen. Conflict avoided is rarely conflict resolved — it's conflict postponed, usually with interest.");
+  if (JP==='J') spots.push("Once you've made a plan, you can become invested in it past the point where new information should change it. The best leaders hold their plans loosely enough to update them.");
+  else spots.push("Your openness to possibility can leave people uncertain about where things stand. Teams need enough closure to act, even if the picture isn't perfect.");
+  spots.push(`Your Working Frustrations in ${f1} and ${f2} create genuine blind spots. The tasks that drain you most are often the ones most invisible to you — which means they can accumulate unnoticed until they become a real problem.`);
+  return spots;
+}
+
+function getBlindSpotReminder(mbti) {
+  const TF = mbti[2];
+  if (TF==='T') return "The goal isn't to eliminate your blind spots — it's to know where they are so you can compensate intentionally. The most self-aware leaders aren't the ones with the fewest blind spots. They're the ones who've stopped pretending they don't have any.";
+  return "Naming your blind spots takes courage. But people who work with you will trust you more, not less, when they see that you're genuinely working on them. Vulnerability, used wisely, builds the kind of credibility that competence alone never fully can.";
+}
+
+function getTeamRoleDesc(mbti, genius, g1, g2) {
+  const EI = mbti[0], TF = mbti[2], JP = mbti[3];
+  const hasG = genius.includes('G'), hasInv = genius.includes('Inv');
+  const hasW = genius.includes('W'), hasD = genius.includes('D');
+  const hasEn = genius.includes('En'), hasTe = genius.includes('Te');
+
+  if (hasG && EI==='E') return "In team settings, you are often the person who gets things off the ground and keeps energy high when momentum starts to fade. Build your team so that others can carry the ball once it's moving.";
+  if (hasD && hasW) return "In team settings, you are the person who asks the questions no one else is brave enough to ask, and who can tell with unusual accuracy which answers matter. This is rare and should be protected — not everyone can do what you do.";
+  if (hasEn && TF==='F') return "In team settings, you are the connective tissue. You make sure no one falls through the cracks, that voices are heard, and that the human side of the work is never treated as secondary. Teams without your profile often don't know what they're missing until it's gone.";
+  if (hasTe && JP==='J') return "In team settings, you are the person who ensures commitments become results. Your follow-through is a team asset — but be intentional about advocating for your own needs, because people who deliver reliably are sometimes taken for granted.";
+  if (hasInv) return "In team settings, you are the generator. You see the possibility no one else has articulated yet, and you're willing to say it out loud. Pair yourself with people who can evaluate and execute your ideas — that combination is nearly unstoppable.";
+  return `In team settings, your combination of ${g1} and ${g2} positions you as someone who contributes most when working on the problems that matter most, not just the loudest ones.`;
+}
+
+function getFrictionDesc(mbti, friction) {
+  const SN = mbti[1], TF = mbti[2];
+  if (SN==='S' && TF==='T') return "Types that lead with intuition and feeling often appear to you as impractical or overly emotional. What's actually happening is that they're processing different information through a different filter — not wrong, just differently calibrated.";
+  if (SN==='S' && TF==='F') return "Types that lead with intuition and logic often appear to you as either cold or untethered from reality. In practice, they're often seeing something real that simply isn't visible yet — and they may be doing so more analytically than they appear.";
+  if (SN==='N' && TF==='T') return "Types that anchor in facts and feelings can seem to you like they're missing the bigger picture or prioritizing comfort over clarity. What they're often doing is catching the practical and human details that are easy to lose at altitude.";
+  if (SN==='N' && TF==='F') return "Types that are highly concrete and analytical can feel limiting or rigid to you. What they're often doing is protecting the team from ideas that sound compelling but haven't been stress-tested yet.";
+  return "The friction you feel with these types is real — but it's almost always rooted in difference, not deficiency. The more you understand how they process the world, the more you can work with their perspective rather than around it.";
+}
+
+function getFrictionBridge(mbti) {
+  const EI = mbti[0], TF = mbti[2];
+  if (EI==='E' && TF==='T') return "Slow down before you conclude. Your instinct to reach a quick decision can feel like dismissal to people who need more time to process. Ask one more question than feels necessary — it costs little and earns significant trust.";
+  if (EI==='E' && TF==='F') return "Be intentional about creating space for the people who don't naturally compete for airtime. Some of your most important team members are the quietest.";
+  if (EI==='I' && TF==='T') return "Share your thinking earlier in the process, even when it's not fully formed. People don't need your conclusion — they need to be part of your reasoning.";
+  if (EI==='I' && TF==='F') return "Name appreciation explicitly and often. What feels obvious to you as care is invisible to people who need to hear it said.";
+  return "Start by getting curious. Before you form a judgment about someone who frustrates you, ask yourself: 'What might they be seeing that I'm not?' That question alone can transform a difficult relationship into a productive one.";
+}
+
+function getIdealRole(mbti, genius, g1, g2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const hasG = genius.includes('G'), hasInv = genius.includes('Inv');
+  const hasW = genius.includes('W'), hasD = genius.includes('D');
+  const hasEn = genius.includes('En'), hasTe = genius.includes('Te');
+
+  if (hasG && EI==='E') return "Your ideal team role is that of Catalyst and Champion. You are the person who generates momentum, creates buy-in, and keeps the energy alive when a team hits resistance. You work best at the front of initiatives and in any role that requires influencing others.";
+  if (hasW && SN==='N') return "Your ideal team role is that of Strategic Questioner. You are the person who ensures the team doesn't solve the wrong problem. You belong in planning conversations, innovation discussions, and any moment when the group needs to step back before moving forward.";
+  if (hasD && TF==='T') return "Your ideal team role is that of Quality Filter. You are the person who ensures the team's ideas survive contact with reality. You add the most value in evaluation, decision-making, and anywhere that good judgment prevents wasted effort.";
+  if (hasEn && TF==='F') return "Your ideal team role is that of Relational Anchor. You are the person who makes the team a team — not just a group of individuals. You thrive in roles that involve coaching, supporting, mentoring, or ensuring that no team member is left behind.";
+  if (hasTe && JP==='J') return "Your ideal team role is that of Execution Engine. You are the person who turns plans into results. You belong at the implementation phase of every significant initiative, and your presence is what separates teams that start well from teams that finish well.";
+  if (hasInv) return "Your ideal team role is that of Idea Architect. You are the person who generates the solutions others haven't thought of yet. You belong in creative problem-solving, curriculum design, and any challenge that requires building something that doesn't yet exist.";
+  return `Your ideal team role is shaped by your combination of ${g1} and ${g2}. Position yourself where those strengths are the most valuable contribution, not where you're filling a gap someone else should fill.`;
+}
+
+function getIdealRoleGenius(genius, g1, g2, competency, c1, c2) {
+  return `Beyond your core working types, your competencies in ${c1} and ${c2} make you a flexible contributor — you can do this work when the team needs it, without it costing you significantly. This gives you range that not everyone has. Use it strategically, not as a default.`;
+}
+
+function getIdealRoleWarning(frustration, f1, f2) {
+  return `The role to avoid — or to staff around carefully — is one that puts ${f1} and ${f2} at the center of your daily work. This isn't about capability; it's about sustainability. The most effective educators and leaders are not the ones who can do everything — they're the ones who've built environments where they rarely have to.`;
+}
+
+function getGrowthSteps(mbti, wg, g1, g2, f1, f2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const steps = [];
+
+  // Universal growth step
+  steps.push(`<strong>Learn one other profile deeply.</strong> Pick one of the types you find most difficult to work with and spend time genuinely understanding how they see the world. Read about them, talk to them, ask questions. This single step builds more leadership range than almost anything else.`);
+
+  // EI growth
+  if (EI==='E') steps.push(`<strong>Practice structured listening.</strong> In your next three team meetings, commit to speaking second — not first. Notice what you hear when you're not preparing your response. The insights of introverted colleagues will surprise you.`);
+  else steps.push(`<strong>Speak up earlier.</strong> Your instinct to wait until your thinking is fully formed is costing you influence. A half-formed idea shared early shapes the conversation; the same idea shared late is just a reaction. Practice voicing your thinking in real time, even imperfectly.`);
+
+  // SN growth
+  if (SN==='S') steps.push(`<strong>Schedule time for big-picture thinking.</strong> Put a recurring block on your calendar — even 30 minutes a week — where the only agenda is asking "where is this heading?" and "what are we not seeing?" Sensing types often don't do this naturally, which means they miss strategic inflection points.`);
+  else steps.push(`<strong>Translate vision into first steps.</strong> After every planning conversation you lead, commit to naming the three concrete actions that come next. This bridges the gap between your natural altitude and the ground-level clarity your team needs.`);
+
+  // TF growth
+  if (TF==='T') steps.push(`<strong>Add relational context to your feedback.</strong> Before delivering critique, name one genuine strength. This isn't softening — it's completing the picture. Feeling types hear feedback differently when they know the relationship is secure. This skill expands your influence significantly.`);
+  else steps.push(`<strong>Separate the relationship from the decision.</strong> Practice making the difficult call and then tending to the relationship separately. Delaying hard decisions to protect feelings often costs both the decision quality and the relationship.`);
+
+  // JP growth
+  if (JP==='J') steps.push(`<strong>Build in a revision point.</strong> On your next major plan, deliberately schedule a moment midway through to ask "does this still make sense?" This isn't indecision — it's the discipline of staying responsive to reality, which is one of the marks of an excellent leader.`);
+  else steps.push(`<strong>Practice closing loops.</strong> Identify three open commitments in your current work and close them completely this week — decision made, communicated, and done. The discipline of closure is a leadership skill that your natural flexibility sometimes works against.`);
+
+  // WG-based growth
+  steps.push(`<strong>Intentionally develop in your frustration zones.</strong> You don't need to love ${f1} or ${f2} — but a working understanding of what those who carry those working types need from you will make you a far more complete leader. Ask someone on your team who has those strengths to teach you what it looks like when it's done well.`);
+
+  return steps;
+}
+
+function getGrowthReminder(mbti) {
+  const EI = mbti[0], TF = mbti[2];
+  if (TF==='T') return "Growth rarely feels comfortable — and for you, the most significant growth often happens in the relational and emotional dimensions that don't come with clear metrics. Trust the process even when you can't measure the progress.";
+  if (TF==='F') return "Your growth edges are often in the direction of harder conversations and clearer boundaries. The people who will benefit most from your growth in these areas are the very people you care most about.";
+  if (EI==='E') return "Some of your most important growth will happen in quiet. Don't mistake the absence of activity for the absence of progress.";
+  return "Your growth path is not about becoming someone different. It's about becoming more fully who you already are — with more range, more awareness, and more intentional choice about how you show up.";
+}
+
+function getForLeader(mbti, wg, name, g1, g2, f1, f2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const energyLine = EI==='E' ? "an extrovert who gains energy from collaboration and social interaction" : "an introvert who does their deepest work in quiet and needs time to process before contributing";
+  const infoLine = SN==='S' ? "grounded in the concrete and practical" : "oriented toward the big picture and long-range thinking";
+  const decisionLine = TF==='T' ? "makes decisions through logic and objective analysis" : "makes decisions through the lens of people and relationships";
+  const structureLine = JP==='J' ? "works best with clear structure and defined timelines" : "works best with flexibility and room to adapt";
+
+  return `This person is ${mbti} — ${name} — with Working Types in ${g1} and ${g2}. They are ${energyLine}, ${infoLine} in how they take in information, and ${decisionLine}. They ${structureLine}. To get the best from them, create conditions where their ${g1} and ${g2} are put to regular use, and be thoughtful about how much sustained work in ${f1} and ${f2} you're placing on them — those are genuine energy drains that compound over time.`;
+}
+
+function getForLeaderTips(mbti, genius, frustration, g1, g2, f1, f2) {
+  const EI = mbti[0], TF = mbti[2], JP = mbti[3];
+  const tips = [];
+
+  if (EI==='E') tips.push(`Give them room to think out loud — their ideas develop in conversation. Don't mistake unfinished thinking for unclear thinking.`);
+  else tips.push(`Give them advance notice before meetings where input is needed. They process better when they've had time to reflect, and their contributions will be significantly richer for it.`);
+
+  if (TF==='T') tips.push(`Be direct with them. They respect honesty and can handle hard feedback — in fact, they prefer it to diplomatic ambiguity. Don't soften difficult messages to the point where the message is lost.`);
+  else tips.push(`Be thoughtful about how you deliver feedback. They hear both the content and the relational tone. Leading with care doesn't soften the message — it ensures it actually lands.`);
+
+  if (JP==='J') tips.push(`Honor your commitments to them around timing and process. Unclear expectations or moving goalposts create real friction for this person — not because they're rigid, but because they've built a plan around what they were told.`);
+  else tips.push(`Don't interpret their flexibility as lack of commitment. They are deeply invested — they just process that investment differently than planners do.`);
+
+  tips.push(`Actively protect them from sustained work in ${f1} and ${f2}. If their role demands these consistently, consider restructuring or partnering them with someone who carries those types naturally.`);
+  tips.push(`When you see their ${g1} and ${g2} working types at work, name it. People perform at their highest when they know their leader sees and values what they do best.`);
+
+  return tips;
+}
+
+function getLeadershipPotential(mbti, genius, g1, g2) {
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const hasG = genius.includes('G'), hasD = genius.includes('D');
+  const hasW = genius.includes('W'), hasInv = genius.includes('Inv');
+
+  if (hasG && (EI==='E')) return `High. This person has the energy, the social range, and the galvanizing instinct to carry significant leadership responsibility. The development work is in the areas of depth and follow-through — ensuring that their ability to launch is matched by the structure to sustain.`;
+  if (hasD && hasW) return `High — particularly in strategic and advisory leadership roles. This person sees things others miss and has the clarity to name them. Their development path is in learning to translate insight into action and direction.`;
+  if (TF==='F' && (genius.includes('En') || EI==='I')) return `Strong — particularly as a people leader, coach, or culture builder. Their instinct for relationships and their attentiveness to individuals make them the kind of leader people stay for. Development work: building comfort with difficult decisions and direct conversations.`;
+  if (TF==='T' && JP==='J') return `Strong — particularly in operational and systems leadership. They build trust through reliability and clarity. Development work: building the relational range to lead people who are wired very differently than they are.`;
+  if (hasInv) return `Strong — particularly in roles that require creative leadership, curriculum design, or innovation. They generate the ideas that others execute. Development work: developing the galvanizing and tenacity muscles to carry ideas through to completion.`;
+  return `Solid. This person has genuine leadership capability grounded in ${g1} and ${g2}. The key to unlocking their full potential is intentional positioning — putting them in roles where their strengths are the primary contribution, and building the team around their gaps.`;
+}
+
+function buildPlainTextReport(mbti, wg, avg) {
+  // Generate the same narrative content but as clean plain text for the Google Doc
+  const EI = mbti[0], SN = mbti[1], TF = mbti[2], JP = mbti[3];
+  const name = mbtiNames[mbti];
+  const g1key = wg.genius[0], g2key = wg.genius[1];
+  const c1key = wg.competency[0], c2key = wg.competency[1];
+  const f1key = wg.frustration[0], f2key = wg.frustration[1];
+  const g1 = wgDescriptions[g1key].name, g2 = wgDescriptions[g2key].name;
+  const c1 = wgDescriptions[c1key].name, c2 = wgDescriptions[c2key].name;
+  const f1 = wgDescriptions[f1key].name, f2 = wgDescriptions[f2key].name;
+
+  const energyWord   = EI==='E' ? 'extroverted' : 'introverted';
+  const infoWord     = SN==='S' ? 'sensing' : 'intuitive';
+  const decisionWord = TF==='T' ? 'thinking' : 'feeling';
+  const structureWord= JP==='J' ? 'judging' : 'perceiving';
+
+  const allTypes = ['ISTJ','ISFJ','INFJ','INTJ','ISTP','ISFP','INFP','INTP',
+                    'ESTP','ESFP','ENFP','ENTP','ESTJ','ESFJ','ENFJ','ENTJ'];
+  const allies = allTypes.filter(t => t !== mbti && t[1]===SN && t[2]===TF).slice(0,3);
+  const growthPartners = allTypes.filter(t => t !== mbti && !allies.includes(t) && t[0]===EI && (t[1]!==SN||t[2]!==TF)).slice(0,2);
+  const friction = allTypes.filter(t => t[1]!==SN && t[2]!==TF && t!==mbti).slice(0,3);
+  const wgAllKeys = ['W','Inv','D','G','En','Te'];
+  const neededTypes = wgAllKeys.filter(k => !wg.genius.includes(k) && !wg.competency.includes(k));
+
+  // Strip HTML tags helper
+  const strip = s => s.replace(/<[^>]+>/g, '').replace(/&nbsp;/g,' ').trim();
+
+  const sections = [
+    {
+      title: '1. YOUR PROFILE AT A GLANCE',
+      body: [
+        `You are ${mbti} — ${name}, with Working Types in ${g1} and ${g2}.`,
+        `At the core of your personality are four dimensions: you are ${energyWord} in how you gain energy, ${infoWord} in how you take in information, oriented toward ${decisionWord} when making decisions, and ${structureWord} in how you organize your world.`,
+        `Your Working Types profile: built for ${g1} and ${g2}, capable in ${c1} and ${c2}, and most drained by work that demands ${f1} and ${f2}.`
+      ]
+    },
+    {
+      title: '2. YOUR LEADERSHIP STYLE',
+      body: [
+        strip(getLeadershipStyle(mbti, wg.genius)),
+        strip(getLeadershipGenius(mbti, wg.genius, g1, g2)),
+        strip(getLeadershipWatch(mbti, wg.frustration, f1, f2))
+      ]
+    },
+    {
+      title: '3. YOUR TEACHING & FACILITATION STYLE',
+      body: [
+        strip(getTeachingStyle(mbti, g1, g2)),
+        strip(getTeachingGenius(mbti, wg.genius, g1, g2)),
+        strip(getTeachingTip(mbti))
+      ]
+    },
+    {
+      title: '4. HOW YOU WORK BEST',
+      body: [
+        'You do your best work when:',
+        ...getWorkConditions(mbti, wg.genius, g1, g2, f1, f2).map((c,i) => `  ${i+1}. ${strip(c)}`),
+        strip(getWorkDrains(mbti, wg.frustration, f1, f2))
+      ]
+    },
+    {
+      title: '5. YOUR BLIND SPOTS',
+      body: [
+        'Every strength casts a shadow. Understanding yours is the foundation of genuine self-awareness.',
+        ...getBlindSpots(mbti, wg.frustration, f1, f2).map((b,i) => `  ${i+1}. ${strip(b)}`),
+        strip(getBlindSpotReminder(mbti))
+      ]
+    },
+    {
+      title: '6. BEST TEAM MATCHES',
+      body: [
+        `Natural Allies: ${allies.join(', ')} — ${allies.map(t=>mbtiNames[t]).join(', ')}.`,
+        `Growth Partners: ${growthPartners.join(', ')} — ${growthPartners.map(t=>mbtiNames[t]).join(', ')}.`,
+        `Working Types Complements: People who bring ${neededTypes.map(k=>wgDescriptions[k].name).join(' and ')} free you to operate at your best.`,
+        strip(getTeamRoleDesc(mbti, wg.genius, g1, g2))
+      ]
+    },
+    {
+      title: '7. TYPES TO NAVIGATE CAREFULLY',
+      body: [
+        `Types with the most friction: ${friction.join(', ')} — ${friction.map(t=>mbtiNames[t]).join(', ')}.`,
+        strip(getFrictionDesc(mbti, friction)),
+        `What helps: ${strip(getFrictionBridge(mbti))}`,
+        'The people who challenge you most are often the ones who see what you don\'t. On a well-built team, that\'s an asset.'
+      ]
+    },
+    {
+      title: '8. YOUR IDEAL TEAM ROLE',
+      body: [
+        strip(getIdealRole(mbti, wg.genius, g1, g2)),
+        strip(getIdealRoleGenius(wg.genius, g1, g2, wg.competency, c1, c2)),
+        strip(getIdealRoleWarning(wg.frustration, f1, f2))
+      ]
+    },
+    {
+      title: '9. YOUR GROWTH PATH',
+      body: [
+        'Most meaningful steps to grow as an educator and leader:',
+        ...getGrowthSteps(mbti, wg, g1, g2, f1, f2).map((s,i) => `  ${i+1}. ${strip(s)}`),
+        strip(getGrowthReminder(mbti))
+      ]
+    },
+    {
+      title: '10. FOR YOUR LEADER',
+      body: [
+        strip(getForLeader(mbti, wg, name, g1, g2, f1, f2)),
+        'To get the best from this person:',
+        ...getForLeaderTips(mbti, wg.genius, wg.frustration, g1, g2, f1, f2).map((t,i) => `  ${i+1}. ${strip(t)}`),
+        `Leadership potential: ${strip(getLeadershipPotential(mbti, wg.genius, g1, g2))}`
+      ]
+    }
+  ];
+
+  return sections.map(s => `${s.title}\n\n${s.body.join('\n\n')}`).join('\n\n---\n\n');
+}
+
+function submitToSheets(mbti, wg, avg) {
+  const toast    = document.getElementById('saveToast');
+  const toastMsg = document.getElementById('saveToastMsg');
+
+  const plainTextReport = buildPlainTextReport(mbti, wg, avg);
+
+  const payload = {
+    name:         takerName,
+    email:        takerEmail,
+    mbti:         mbti,
+    archetype:    mbtiNames[mbti] || '',
+    ei:           Math.round(avg.EI * 10) / 10,
+    sn:           Math.round(avg.SN * 10) / 10,
+    tf:           Math.round(avg.TF * 10) / 10,
+    jp:           Math.round(avg.JP * 10) / 10,
+    genius1:      wgDescriptions[wg.genius[0]].name,
+    genius2:      wgDescriptions[wg.genius[1]].name,
+    competency1:  wgDescriptions[wg.competency[0]].name,
+    competency2:  wgDescriptions[wg.competency[1]].name,
+    frustration1: wgDescriptions[wg.frustration[0]].name,
+    frustration2: wgDescriptions[wg.frustration[1]].name,
+    report:       plainTextReport
+  };
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    toastMsg.textContent = '✓ Your results have been saved and your full report stored successfully.';
+    toast.className = 'save-toast show';
+  })
+  .catch(() => {
+    toastMsg.textContent = '⚠ Results could not be saved. Please use Save as PDF to keep a copy.';
+    toast.className = 'save-toast error show';
+  });
+}
+
+function savePDF() {
+  // Set the date in the footer before printing
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('pdfDate').textContent = dateStr;
+
+  // Set a helpful document title so the default PDF filename is meaningful
+  const mbtiEl = document.getElementById('mbtiTypeDisplay');
+  const mbtiType = mbtiEl ? mbtiEl.textContent : 'Profile';
+  const prevTitle = document.title;
+  document.title = `The Catalyst Profile — ${mbtiType} — ${dateStr}`;
+
+  window.print();
+
+  // Restore title after print dialog closes
+  setTimeout(() => { document.title = prevTitle; }, 2000);
+}
+
+function retake() {
+  answers = {};
+  currentPage = 0;
+  takerName = '';
+  takerEmail = '';
+  document.getElementById('mbtiDimensions').innerHTML = '';
+  document.getElementById('wgGrid').innerHTML = '';
+  document.getElementById('narrativeSections').innerHTML = '';
+  document.getElementById('resultsTakerName').textContent = '';
+  document.getElementById('saveToast').className = 'save-toast';
+  document.getElementById('userName').value = '';
+  document.getElementById('userEmail').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('intro').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
